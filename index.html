@@ -1,17 +1,486 @@
 <!DOCTYPE html>
+<html lang="ja">
 <head>
-    <label for="name">Name:</label>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="アカハライモリの産卵、孵化、幼生の成長を記録する観察日誌です。">
+  <title>アカハライモリ観察日誌</title>
+  <style>
+    :root {
+      --ink: #18302a;
+      --muted: #66746f;
+      --paper: #f7f5ed;
+      --card: #fffef9;
+      --pond: #174a3b;
+      --pond-deep: #0c3027;
+      --moss: #73926f;
+      --line: #dce2d8;
+      --accent: #d65b3e;
+      --accent-soft: #f3d9cd;
+      --shadow: 0 18px 50px rgba(25, 55, 45, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 18%, rgba(142, 170, 124, 0.12), transparent 28rem),
+        var(--paper);
+      font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+      line-height: 1.8;
+    }
+
+    a { color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    .site-header {
+      position: absolute;
+      z-index: 3;
+      inset: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 24px 0;
+      color: white;
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-family: Georgia, "Yu Mincho", serif;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .brand-mark {
+      width: 31px;
+      height: 31px;
+      border: 1px solid rgba(255,255,255,.65);
+      border-radius: 50% 44% 54% 42%;
+      position: relative;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      right: 4px;
+      bottom: 2px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    nav { display: flex; gap: 28px; font-size: .82rem; letter-spacing: .06em; }
+    nav a { color: rgba(255,255,255,.86); text-decoration: none; }
+    nav a:hover { color: white; }
+
+    .hero {
+      min-height: 650px;
+      display: grid;
+      align-items: end;
+      position: relative;
+      color: white;
+      overflow: hidden;
+      background: var(--pond-deep);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(8,35,27,.86) 0%, rgba(8,35,27,.48) 44%, rgba(8,35,27,.08) 78%),
+        linear-gradient(0deg, rgba(8,35,27,.72) 0%, transparent 45%),
+        url("assets/akahara-newt-hero.png") center / cover;
+      transform: scale(1.01);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 150px 0 70px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 14px;
+      color: var(--accent-soft);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before { content: ""; width: 34px; height: 1px; background: currentColor; }
+
+    h1 {
+      max-width: 700px;
+      margin: 0;
+      font-family: Georgia, "Yu Mincho", serif;
+      font-size: clamp(2.6rem, 7vw, 5.6rem);
+      font-weight: 500;
+      line-height: 1.12;
+      letter-spacing: .035em;
+    }
+
+    .hero-lead { max-width: 520px; margin: 24px 0 0; color: rgba(255,255,255,.82); font-size: .98rem; }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin-top: 42px;
+      padding-top: 25px;
+      border-top: 1px solid rgba(255,255,255,.25);
+      font-size: .75rem;
+      letter-spacing: .07em;
+    }
+
+    .hero-meta strong { display: block; color: white; font-size: 1rem; letter-spacing: 0; }
+
+    main { overflow: hidden; }
+    .section { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 100px 0; }
+
+    .section-heading { display: grid; grid-template-columns: 160px 1fr; gap: 30px; margin-bottom: 42px; }
+    .section-no { color: var(--accent); font: italic 1rem Georgia, serif; }
+    .section-heading h2 { margin: 0 0 10px; font-family: Georgia, "Yu Mincho", serif; font-size: clamp(1.9rem, 4vw, 3.1rem); font-weight: 500; line-height: 1.3; }
+    .section-heading p { max-width: 680px; margin: 0; color: var(--muted); font-size: .92rem; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .stat { padding: 28px; background: var(--card); }
+    .stat-label { color: var(--muted); font-size: .72rem; letter-spacing: .08em; }
+    .stat-value { margin: 7px 0 0; font: 500 2.4rem Georgia, serif; line-height: 1.1; }
+    .stat-value span { margin-left: 3px; font: .8rem sans-serif; color: var(--muted); }
+
+    .notice { margin: 18px 0 0; color: var(--muted); font-size: .76rem; }
+    .notice::before { content: "※ "; color: var(--accent); }
+
+    .chart-card {
+      display: grid;
+      grid-template-columns: 1.7fr .8fr;
+      gap: 36px;
+      padding: 40px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .chart-title { display: flex; justify-content: space-between; align-items: start; gap: 20px; margin-bottom: 22px; }
+    .chart-title h3 { margin: 0; font: 500 1.25rem Georgia, "Yu Mincho", serif; }
+    .sample-tag { padding: 4px 10px; border-radius: 99px; color: #8d3e2d; background: var(--accent-soft); font-size: .68rem; white-space: nowrap; }
+    .chart-wrap { position: relative; min-height: 330px; }
+    #survival-chart { width: 100%; height: 330px; overflow: visible; }
+    .grid-line { stroke: #e5e9e2; stroke-width: 1; }
+    .axis { stroke: #9aa69f; stroke-width: 1; }
+    .axis-text { fill: #78847e; font-size: 11px; }
+    .survival-line { fill: none; stroke: var(--pond); stroke-width: 3; stroke-linejoin: round; }
+    .confidence { fill: rgba(115,146,111,.16); stroke: none; }
+    .censor { stroke: var(--accent); stroke-width: 1.5; }
+
+    .chart-note { padding-left: 30px; border-left: 1px solid var(--line); }
+    .chart-note h3 { margin: 0 0 15px; font: 500 1.1rem Georgia, "Yu Mincho", serif; }
+    .chart-note p { margin: 0 0 24px; color: var(--muted); font-size: .82rem; }
+    .legend { display: grid; gap: 12px; margin-bottom: 28px; font-size: .76rem; }
+    .legend-item { display: flex; align-items: center; gap: 10px; }
+    .key-line { width: 26px; height: 3px; background: var(--pond); }
+    .key-area { width: 26px; height: 12px; background: rgba(115,146,111,.2); }
+    .key-censor { color: var(--accent); font-weight: 700; }
+    .mini-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .mini-facts div { padding-top: 12px; border-top: 1px solid var(--line); }
+    .mini-facts span { display: block; color: var(--muted); font-size: .67rem; }
+    .mini-facts strong { font: 500 1.3rem Georgia, serif; }
+
+    .stage-band { background: var(--pond-deep); color: white; }
+    .stage-band .section-heading p { color: rgba(255,255,255,.62); }
+    .stages { display: grid; grid-template-columns: repeat(6, 1fr); }
+    .stage { position: relative; padding: 20px 20px 20px 0; border-top: 1px solid rgba(255,255,255,.2); }
+    .stage:not(:last-child)::after { content: "→"; position: absolute; top: 19px; right: 12px; color: var(--accent); }
+    .stage-no { color: var(--accent-soft); font: italic .75rem Georgia, serif; }
+    .stage h3 { margin: 12px 0 4px; font-size: .9rem; font-weight: 500; }
+    .stage p { margin: 0; color: rgba(255,255,255,.55); font-size: .7rem; }
+
+    .records { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .record { padding: 28px; border: 1px solid var(--line); background: var(--card); transition: transform .2s, box-shadow .2s; }
+    .record:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .record-date { color: var(--accent); font: italic .78rem Georgia, serif; }
+    .record h3 { margin: 12px 0 12px; font: 500 1.18rem Georgia, "Yu Mincho", serif; line-height: 1.5; }
+    .record p { margin: 0 0 20px; color: var(--muted); font-size: .8rem; }
+    .record-data { display: flex; gap: 17px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; }
+    .record-data strong { color: var(--ink); font-weight: 500; }
+
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; }
+    .method-grid h3 { margin: 0 0 18px; font: 500 1.25rem Georgia, "Yu Mincho", serif; }
+    .method-grid p, .method-grid li { color: var(--muted); font-size: .86rem; }
+    .method-grid ul { margin: 0; padding-left: 1.2rem; }
+    .method-grid li + li { margin-top: 8px; }
+
+    .data-table { width: 100%; margin-top: 28px; border-collapse: collapse; font-size: .78rem; }
+    .data-table th, .data-table td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+    .data-table th { color: var(--muted); font-size: .68rem; font-weight: 500; letter-spacing: .06em; }
+    .status { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--moss); }
+    .status.dead { background: var(--accent); }
+
+    footer { padding: 44px 20px; color: rgba(255,255,255,.62); background: #09251f; text-align: center; font-size: .72rem; letter-spacing: .04em; }
+
+    @media (max-width: 850px) {
+      nav { display: none; }
+      .hero { min-height: 600px; }
+      .hero::before { background-position: 62% center; }
+      .section-heading { grid-template-columns: 1fr; gap: 8px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .chart-card { grid-template-columns: 1fr; padding: 28px 20px; }
+      .chart-note { padding: 24px 0 0; border: 0; border-top: 1px solid var(--line); }
+      .stages { grid-template-columns: repeat(3, 1fr); gap: 22px; }
+      .records { grid-template-columns: 1fr; }
+      .method-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    @media (max-width: 520px) {
+      .site-header, .hero-inner, .section { width: min(100% - 28px, 1120px); }
+      .hero { min-height: 640px; }
+      .hero::before { background-position: 68% center; }
+      .hero-meta { gap: 18px; }
+      .section { padding: 72px 0; }
+      .stats { grid-template-columns: 1fr; }
+      .stat { padding: 22px; }
+      .chart-wrap, #survival-chart { min-height: 270px; height: 270px; }
+      .stages { grid-template-columns: 1fr 1fr; }
+      .data-table { font-size: .7rem; }
+      .data-table th, .data-table td { padding: 10px 7px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
 </head>
 <body>
-    <input type="text" id="name" name="name">
-    <button onclick="greetUser()">Greet</button>
-    <p id="greeting"></p>
+  <header class="site-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span>AKAHARA LOG</div>
+    <nav aria-label="メインナビゲーション">
+      <a href="#status">現在の状況</a>
+      <a href="#survival">生存曲線</a>
+      <a href="#records">観察記録</a>
+      <a href="#method">観察方法</a>
+    </nav>
+  </header>
 
-    <script>
-        function greetUser() {
-            const name = document.getElementById('name').value;
-            const greetingMessage = `Hello, ${name}!`;
-            document.getElementById('greeting').innerText = greetingMessage;
-        }
-    </script>
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <p class="eyebrow">Breeding &amp; Growth Observation</p>
+        <h1>アカハライモリ<br>観察日誌</h1>
+        <p class="hero-lead">約200個の卵から始まった、孵化と餌付け、そして小さな命が育っていく過程の記録。</p>
+        <div class="hero-meta">
+          <div>観察開始<strong>2026.05</strong></div>
+          <div>観察対象<strong>アカハライモリ</strong></div>
+          <div>最終更新<strong>2026.08.15</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="status">
+      <div class="section-heading">
+        <span class="section-no">01 — Status</span>
+        <div><h2>現在の飼育状況</h2><p>産卵から今日までの状況を、ひと目でわかる数字にまとめます。実際の記録に合わせて更新していきます。</p></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">確認した卵</div><div class="stat-value">約200<span>個</span></div></div>
+        <div class="stat"><div class="stat-label">孵化した個体</div><div class="stat-value">168<span>匹</span></div></div>
+        <div class="stat"><div class="stat-label">現在の生存個体</div><div class="stat-value">142<span>匹</span></div></div>
+        <div class="stat"><div class="stat-label">上陸した個体</div><div class="stat-value">24<span>匹</span></div></div>
+      </div>
+      <p class="notice">卵以外の数値はページ構成を確認するための表示例です。実際の観察データに置き換えてください。</p>
+    </section>
+
+    <section class="section" id="survival">
+      <div class="section-heading">
+        <span class="section-no">02 — Survival</span>
+        <div><h2>孵化後の生存曲線</h2><p>孵化日を0日目として、幼生がどのくらいの期間生存しているかをカプラン–マイヤー曲線で示します。</p></div>
+      </div>
+      <div class="chart-card">
+        <div>
+          <div class="chart-title"><h3>生存割合の推移</h3><span class="sample-tag">サンプルデータ</span></div>
+          <div class="chart-wrap"><svg id="survival-chart" role="img" aria-label="孵化後90日間の生存割合を示すサンプル曲線"></svg></div>
+        </div>
+        <aside class="chart-note">
+          <h3>グラフの見方</h3>
+          <p>線が下がる箇所は死亡が確認された時点を表します。赤い短線は、その時点まで生存を確認できた個体（打ち切り）の例です。</p>
+          <div class="legend">
+            <div class="legend-item"><span class="key-line"></span>推定生存曲線</div>
+            <div class="legend-item"><span class="key-area"></span>95%信頼区間のイメージ</div>
+            <div class="legend-item"><span class="key-censor">＋</span>打ち切り</div>
+          </div>
+          <div class="mini-facts">
+            <div><span>観察開始</span><strong>168</strong></div>
+            <div><span>死亡確認</span><strong>26</strong></div>
+            <div><span>打ち切り</span><strong>3</strong></div>
+            <div><span>観察期間</span><strong>90日</strong></div>
+          </div>
+        </aside>
+      </div>
+      <p class="notice">曲線と集計値は表示例です。死亡日・最終生存確認日を含む実測データから再計算する必要があります。</p>
+    </section>
+
+    <section class="stage-band">
+      <div class="section">
+        <div class="section-heading">
+          <span class="section-no">03 — Growth</span>
+          <div><h2>成長の道のり</h2><p>卵から幼体になるまで、姿と暮らし方が大きく変化していきます。</p></div>
+        </div>
+        <div class="stages">
+          <div class="stage"><span class="stage-no">01</span><h3>卵</h3><p>水草に一粒ずつ産卵</p></div>
+          <div class="stage"><span class="stage-no">02</span><h3>孵化</h3><p>外鰓を持つ幼生へ</p></div>
+          <div class="stage"><span class="stage-no">03</span><h3>幼生</h3><p>餌を食べて成長</p></div>
+          <div class="stage"><span class="stage-no">04</span><h3>四肢の発達</h3><p>前肢、後肢の順に形成</p></div>
+          <div class="stage"><span class="stage-no">05</span><h3>上陸</h3><p>外鰓が消え陸上へ</p></div>
+          <div class="stage"><span class="stage-no">06</span><h3>幼体</h3><p>陸上中心の生活</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="records">
+      <div class="section-heading">
+        <span class="section-no">04 — Records</span>
+        <div><h2>日々の観察記録</h2><p>水温や餌、個体数の変化とともに、その日に気づいた小さな変化を残します。</p></div>
+      </div>
+      <div class="records">
+        <article class="record">
+          <time class="record-date" datetime="2026-08-15">2026.08.15 — DAY 90</time>
+          <h3>上陸する個体が増えてきた</h3>
+          <p>水際の石に上がる幼体を複数確認。外鰓が小さくなった個体は、浅い場所で過ごす時間が長い。</p>
+          <div class="record-data"><span>水温 <strong>22.4℃</strong></span><span>餌 <strong>イトミミズ</strong></span><span>生存 <strong>142匹</strong></span></div>
+        </article>
+        <article class="record">
+          <time class="record-date" datetime="2026-08-01">2026.08.01 — DAY 76</time>
+          <h3>後肢がはっきり見える</h3>
+          <p>多くの個体で後肢の指先まで確認できた。給餌後は水草の間から出て、活発に餌を追っている。</p>
+          <div class="record-data"><span>水温 <strong>23.1℃</strong></span><span>餌 <strong>ミジンコ</strong></span><span>生存 <strong>148匹</strong></span></div>
+        </article>
+        <article class="record">
+          <time class="record-date" datetime="2026-07-12">2026.07.12 — DAY 56</time>
+          <h3>餌への反応が安定した</h3>
+          <p>スポイトで餌を入れると近づく個体が増えた。体格差が目立つため、餌が行き渡るよう場所を分けた。</p>
+          <div class="record-data"><span>水温 <strong>21.8℃</strong></span><span>餌 <strong>ブライン</strong></span><span>生存 <strong>155匹</strong></span></div>
+        </article>
+      </div>
+      <p class="notice">日付・水温・個体数・観察内容はレイアウト確認用のサンプルです。</p>
+    </section>
+
+    <section class="section" id="method">
+      <div class="section-heading">
+        <span class="section-no">05 — Method</span>
+        <div><h2>観察の目的と方法</h2><p>数字だけでなく、どのように観察したかも残すことで、後から記録を正しく読み返せるようにします。</p></div>
+      </div>
+      <div class="method-grid">
+        <div>
+          <h3>この観察について</h3>
+          <p>アカハライモリの産卵から孵化、餌付け、上陸までを継続して記録し、成長に伴う行動と姿の変化を知ることが目的です。飼育下における一つの事例としてまとめています。</p>
+          <table class="data-table">
+            <thead><tr><th>個体ID</th><th>孵化日</th><th>最終確認日</th><th>状態</th></tr></thead>
+            <tbody>
+              <tr><td>A001</td><td>2026.05.17</td><td>2026.08.15</td><td><span class="status"></span>生存</td></tr>
+              <tr><td>A002</td><td>2026.05.18</td><td>2026.06.10</td><td><span class="status dead"></span>死亡</td></tr>
+              <tr><td>A003</td><td>2026.05.18</td><td>2026.07.01</td><td><span class="status"></span>打ち切り</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>記録している項目</h3>
+          <ul>
+            <li>産卵・孵化・死亡・上陸を確認した日</li>
+            <li>毎日の生存確認数と成長段階</li>
+            <li>水温、飼育容器、水換えなどの環境</li>
+            <li>餌の種類、回数、食いつきの様子</li>
+            <li>体の変化、行動、その日の気づき</li>
+          </ul>
+          <h3 style="margin-top:32px">データについて</h3>
+          <p>卵数は概数です。「卵から孵化まで」と「孵化後の生存」は分けて集計します。死亡日が不明な個体や識別できなくなった個体は、推測で死亡とせず最終確認日で打ち切ります。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>AKAHARA NEWT OBSERVATION LOG — 飼育下での個人的な観察記録</footer>
+
+  <script>
+    (() => {
+      const svg = document.getElementById('survival-chart');
+      const NS = 'http://www.w3.org/2000/svg';
+      const data = [[0,1],[8,.98],[15,.96],[24,.93],[32,.91],[44,.89],[57,.87],[69,.86],[78,.85],[90,.845]];
+      const upper = data.map(([d,s]) => [d, Math.min(1, s + .025 + d / 3600)]);
+      const lower = data.map(([d,s]) => [d, Math.max(0, s - .025 - d / 3600)]);
+      const censored = [[52,.89],[74,.86],[86,.845]];
+
+      function draw() {
+        const box = svg.getBoundingClientRect();
+        const w = Math.max(320, box.width), h = box.height || 330;
+        const m = { top: 12, right: 16, bottom: 42, left: 48 };
+        const x = d => m.left + d / 90 * (w - m.left - m.right);
+        const y = s => m.top + (1 - (s - .75) / .25) * (h - m.top - m.bottom);
+        svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        svg.replaceChildren();
+
+        const add = (name, attrs, text) => {
+          const el = document.createElementNS(NS, name);
+          Object.entries(attrs).forEach(([key,val]) => el.setAttribute(key,val));
+          if (text) el.textContent = text;
+          svg.appendChild(el); return el;
+        };
+
+        [1,.95,.90,.85,.80,.75].forEach(v => {
+          add('line',{x1:m.left,y1:y(v),x2:w-m.right,y2:y(v),class:'grid-line'});
+          add('text',{x:m.left-9,y:y(v)+4,'text-anchor':'end',class:'axis-text'},`${Math.round(v*100)}%`);
+        });
+        [0,30,60,90].forEach(v => {
+          add('line',{x1:x(v),y1:m.top,x2:x(v),y2:h-m.bottom,class:'grid-line'});
+          add('text',{x:x(v),y:h-m.bottom+23,'text-anchor':'middle',class:'axis-text'},String(v));
+        });
+        add('line',{x1:m.left,y1:h-m.bottom,x2:w-m.right,y2:h-m.bottom,class:'axis'});
+        add('line',{x1:m.left,y1:m.top,x2:m.left,y2:h-m.bottom,class:'axis'});
+        add('text',{x:(m.left+w-m.right)/2,y:h-3,'text-anchor':'middle',class:'axis-text'},'孵化後の日数');
+
+        const stepPoints = points => {
+          let result = `M ${x(points[0][0])} ${y(points[0][1])}`;
+          for (let i=1;i<points.length;i++) result += ` H ${x(points[i][0])} V ${y(points[i][1])}`;
+          return result;
+        };
+        let area = stepPoints(upper);
+        const reverse = [...lower].reverse();
+        area += ` L ${x(reverse[0][0])} ${y(reverse[0][1])}`;
+        for (let i=1;i<reverse.length;i++) area += ` V ${y(reverse[i][1])} H ${x(reverse[i][0])}`;
+        area += ' Z';
+        add('path',{d:area,class:'confidence'});
+        add('path',{d:stepPoints(data),class:'survival-line'});
+
+        censored.forEach(([d,s]) => {
+          add('line',{x1:x(d)-4,y1:y(s),x2:x(d)+4,y2:y(s),class:'censor'});
+          add('line',{x1:x(d),y1:y(s)-4,x2:x(d),y2:y(s)+4,class:'censor'});
+        });
+      }
+      draw();
+      window.addEventListener('resize', draw);
+    })();
+  </script>
 </body>
+</html>
